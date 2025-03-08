@@ -15,8 +15,7 @@ const welcomeFlow = addKeyword<Provider, Database>(['funca el bot'])
 
 const main = async () => {
     const adapterFlow = createFlow([welcomeFlow])
-    
-    const adapterProvider = createProvider(Provider, { usePairingCode: true, phoneNumber: process.env.PHONE_NUMBER })
+    const adapterProvider = createProvider(Provider)    
     const adapterDB = new Database()
 
     const { handleCtx, httpServer } = await createBot({
