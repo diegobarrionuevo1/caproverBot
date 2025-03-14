@@ -22,14 +22,26 @@ const main = async () => {
         flow: adapterFlow,
         provider: adapterProvider,
         database: adapterDB,
+    },{
+        queue: {
+            timeout: 20000, 
+            concurrencyLimit: 50 
+        }
     })
 
     adapterProvider.server.post(
         '/v1/messages',
         handleCtx(async (bot, req, res) => {
             const { number, message, urlMedia } = req.body
-            await bot.sendMessage(number, message, { media: urlMedia ?? null })
-            return res.end('sended')
+            console.log('message', { number, message, urlMedia })
+            const result = await bot.sendMessage(number, message, { media: urlMedia ?? null })
+            if (result) {
+                res.writeHead(200, { 'Content-Type': 'application/json' })
+                return res.end(JSON.stringify({ status: 'ok', result }))
+            }
+            res.writeHead(400, { 'Content-Type': 'application/json' })
+            console.log('message failed', { number, message, urlMedia })
+            return res.end(JSON.stringify({ status: 'failed' }))
         })
     )
 
