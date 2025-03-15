@@ -32,16 +32,29 @@ const main = async () => {
     adapterProvider.server.post(
         '/v1/messages',
         handleCtx(async (bot, req, res) => {
-            const { number, message, urlMedia } = req.body
-            console.log('message', { number, message, urlMedia })
-            const result = await bot.sendMessage(number, message, { media: urlMedia ?? null })
-            if (result) {
-                res.writeHead(200, { 'Content-Type': 'application/json' })
-                return res.end(JSON.stringify({ status: 'ok', result }))
+            try {
+                const { number, message, urlMedia } = req.body
+                console.log('📩 Recibiendo mensaje:', { number, message, urlMedia })
+    
+                if (!number || !message) {
+                    throw new Error('Número o mensaje faltante en la petición.')
+                }
+    
+                const result = await bot.sendMessage(number, message, { media: urlMedia ?? null })
+    
+                if (result) {
+                    console.log('✅ Mensaje enviado correctamente:', result)
+                    res.writeHead(200, { 'Content-Type': 'application/json' })
+                    return res.end(JSON.stringify({ status: 'ok', result }))
+                }
+    
+                throw new Error('Fallo el envío del mensaje.')
+    
+            } catch (error) {
+                console.error('❌ Error al procesar el mensaje:', error.message, error.stack)
+                res.writeHead(500, { 'Content-Type': 'application/json' })
+                return res.end(JSON.stringify({ status: 'error', message: error.message }))
             }
-            res.writeHead(400, { 'Content-Type': 'application/json' })
-            console.log('message failed', { number, message, urlMedia })
-            return res.end(JSON.stringify({ status: 'failed' }))
         })
     )
 
