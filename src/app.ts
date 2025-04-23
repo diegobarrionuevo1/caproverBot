@@ -15,7 +15,10 @@ const welcomeFlow = addKeyword<Provider, Database>(['funca el bot'])
 
 const main = async () => {
     const adapterFlow = createFlow([welcomeFlow])
-    const adapterProvider = createProvider(Provider)    
+    const adapterProvider = createProvider(Provider, { 
+        experimentalStore: true,  // Significantly reduces resource consumption
+        timeRelease: 10800000,    // Cleans up data every 3 hours (in milliseconds)
+    })    
     const adapterDB = new Database()
 
     const { handleCtx, httpServer } = await createBot({
